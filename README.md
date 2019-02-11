@@ -12,20 +12,20 @@ Based on [Official Single-Sign-On for Discourse (sso)](https://meta.discourse.or
 3. Call `login_url` to redirect user to new login flow
 4. Call `handle_response` at callback endpoint __/session/sso_login__
 
-## Sample
+## Samples
 
 ```php
 require './ecomplus-sso.php';
 $sso = new EcomSSO();
 ```
 
-### Start Login Flow
+### Start login flow
 
 ```php
 $sso->login_url(true);
 ```
 
-### Handle Callback Redirect
+### Handle callback redirect
 
 ```php
 $user = $sso->handle_response();
@@ -47,4 +47,28 @@ if ($user !== null) {
   // invalid request
   http_response_code(400);
 }
+```
+
+### Custom secret and service
+
+Custom secret token
+
+```php
+// default is to get from SSO_SECRET env
+$sso = new EcomSSO('cb68251eefb5211e58c00ff1395f0c0b');
+```
+
+Custom service name
+
+```php
+// default service name is 'market'
+// must match with subdomain name
+// eg.: 'builder' for 'builder.e-com.plus'
+$sso = new EcomSSO(null, 'builder');
+```
+
+Both custom secret and service
+
+```php
+$sso = new EcomSSO('cb68251eefb5211e58c00ff1395f0c0b', 'builder');
 ```
