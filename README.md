@@ -51,14 +51,14 @@ if ($user !== null) {
 
 ### Custom secret and service
 
-Custom secret token
+Custom secret token:
 
 ```php
 // default is to get from SSO_SECRET env
 $sso = new EcomSSO('cb68251eefb5211e58c00ff1395f0c0b');
 ```
 
-Custom service name
+Custom service name:
 
 ```php
 // default service name is 'market'
@@ -67,7 +67,7 @@ Custom service name
 $sso = new EcomSSO(null, 'builder');
 ```
 
-Both custom secret and service
+Both custom secret and service:
 
 ```php
 $sso = new EcomSSO('cb68251eefb5211e58c00ff1395f0c0b', 'builder');
