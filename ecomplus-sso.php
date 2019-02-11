@@ -15,7 +15,11 @@ class EcomSSO
   // Base E-Com Plus URL for admin authentication
   private $url = 'https://admin.e-com.plus/session/sso/v1/';
 
-  function __construct ($secret, $service = 'market') {
+  function __construct ($secret = null, $service = 'market') {
+    if ($secret === null && isset($_ENV['SSO_SECRET'])) {
+      // get secret from environment variable by default
+      $secret = $_ENV['SSO_SECRET'];
+    }
     if (!is_string($secret) || strlen($secret) !== 32) {
       throw new Exception('Secret must be a string with 32 chars');
     }
