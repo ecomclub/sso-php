@@ -42,7 +42,7 @@ class EcomSSO
 
   private function get_nonce () {
     // get saved nonce from cookie
-    return $_COOKIE['sso_nonce'];
+    return @$_COOKIE['sso_nonce'];
   }
 
   private function generate_payload ($nonce = null) {
@@ -53,17 +53,9 @@ class EcomSSO
     return 'nonce=' . $nonce;
   }
 
-  private function encoded_payload ($payload = null) {
-    // encode payload to Base64
-    if (!$payload) {
-      $payload = $this->generate_payload();
-    }
-    return base64_encode($payload);
-  }
-
-  private function hash_signature ($hash) {
+  private function hash_signature ($data) {
     // payload is validated using HMAC-SHA256
-    return hash_hmac('sha256', $hash, $this->secret);
+    return hash_hmac('sha256', $data, $this->secret);
   }
 
   /* Public methods */
@@ -71,16 +63,54 @@ class EcomSSO
   public function login_url ($redirect = false) {
     // new login flux
     // generate recirect URL
-    $hash = $this->encoded_payload();
+    $encoded_payload = base64_encode($this->generate_payload());
     $url = $this->url .
-      '?sso=' . urlencode($hash) .
-      '&sig=' . $this->hash_signature($hash);
+      '?sso=' . $encoded_payload .
+      '&sig=' . $this->hash_signature($encoded_payload);
     if ($redirect) {
       header('Location: ' . $url);
     }
     return $url;
   }
 
+  public function user_info ($encoded_payload, $signature) {
+    // setup user object
+    // not logged by default
+    $user = array('logged' => false);
+    // check signature first
+    if ($this->hash_signature($encoded_payload) === $signature) {
+      // validated
+      $user['logged'] = true;
+      $payload = @base64_decode($encoded_payload);
+      parse_str($payload, $params);
+      // check nonce ID
+      if (@$params['nonce'] === $this->get_nonce()) {
+        /*
+        add user attributes:
+        name; external_id; email; username; require_activation;
+        custom.locale; custom.edit_storefront; custom.store_id;
+        */
+        foreach ($params as $key => $value) {
+          if ($key === 'nonce') {
+            continue;
+          }
+          $user[$key] = $value;
+        }
+      }
+    }
+    return $user;
+  }
+
   public function handle_response () {
+    // user is redirected back from login URL
+    // callback URL: https://{service}.e-com.plus/session/sso_login
+    // call this function on route specified above
+    if (isset($_GET['sso']) && isset($_GET['sig'])) {
+      // get user object
+      return $this->user_info($_GET['sso'], $_GET['sig']);
+    } else {
+      // invalid URL query string
+      return null;
+    }
   }
 }
