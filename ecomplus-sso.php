@@ -91,10 +91,9 @@ class EcomSSO
         custom.locale; custom.edit_storefront; custom.store_id;
         */
         foreach ($params as $key => $value) {
-          if ($key === 'nonce') {
-            continue;
+          if ($key !== 'nonce') {
+            $user[$key] = $value;
           }
-          $user[$key] = $value;
         }
       }
     }
