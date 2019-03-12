@@ -35,6 +35,7 @@ if ($user !== null) {
     user attributes:
     name; external_id; email; username; require_activation;
     custom.locale; custom.edit_storefront; custom.store_id;
+    custom.access_token.
     */
     if ($user['email']) {
       // do the stuff
